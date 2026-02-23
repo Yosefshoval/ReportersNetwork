@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  kafka:
+  kafka_ui:
+  mongodb:
+  elasticsearch:
+  ingestion:
+  cleaner:
+  analyzer:
+  gridfs:
+  elastic_consumer:
+  dashboard:
+
+
