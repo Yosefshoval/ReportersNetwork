@@ -3,3 +3,4 @@ uvicorn
 confluent-kafka
 requests
 easyocr
+requests

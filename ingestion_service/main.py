@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
-from orchestrator import main_config, orchestrator, logger
+from orchestrator import IngestionConfig, IngestionOrchestrator, logger
 from os import getenv
 
 app = FastAPI()
@@ -15,7 +15,7 @@ def home():
 
 @app.get('/images_loader')
 def load_images():
-    result = orchestrator.load_images_main_loop()
+    result = IngestionOrchestrator.load_images_main_loop()
     return result
 
 
@@ -24,6 +24,6 @@ if __name__ == "__main__":
     uvicorn.run(
         app='main:app',
         host='0.0.0.0',
-        port=int(main_config.server_port)
+        port=int(IngestionConfig.server_port)
     )
     logger.info('server started')

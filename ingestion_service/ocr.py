@@ -1,5 +1,8 @@
 import easyocr
 import subprocess
+from PIL import Image
+import os
+# from orchestrator import logger
 
 
 class OCREngine:
@@ -9,8 +12,10 @@ class OCREngine:
     def __init__(self):
         self.reader = easyocr.Reader(['en'])
 
-    def extract_text(self, image_path: str):
-        result = self.readtext(image_path, detail=0, paragraph=True)
+    def extract_text(self, image_path):
+        result = self.reader.readtext(image_path, detail=0, paragraph=True)
+        # logger.info(f'text from image {image_path} extracted.')
+        print(f'text from image {image_path} extracted.')
         return result
 
 
@@ -21,26 +26,31 @@ class MetadataExtractor:
     - width (int)
     - height (int)
     """
-    def __init__(self):
-        self.exeProcess = "hachoir-metadata"
 
-    def extract_metadata(self, image_path: str):
-        process = subprocess.Popen([self.exeProcess, image_path],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT,
-                                   universal_newlines=True)
-        Dic = {}
+    @staticmethod
+    def extract_metadata(image_path: str):
+        with Image.open(image_path) as img:
+            width, height = img.size
+            image_format = img.format
 
-        for tag in process.stdout:
-            line = tag.strip().split(':')
-            Dic[line[0].strip()] = line[-1].strip()
+            metadata = {
+                "width": width,
+                "height": height,
+                "format": image_format,
+                'file_size': os.path.getsize(image_path)
+            }
+            # logger.info(f'metadata from image {image_path} extracted.')
+            print(f'metadata from image {image_path} extracted.')
+            return metadata
 
-        for k, v in Dic.items():
-            print(k, ':', v)
-        return Dic
-        # pass
-
-    def get_binary_content(self, image):
-        pass
-
-MetadataExtractor().extract_metadata('image.png')
+    @staticmethod
+    def get_binary_content(image_path: str):
+        """
+        :param image_path:
+        :return: binary content of image
+        """
+        with open(image_path, 'rb') as file:
+            binary_image = file.read()
+        # logger.info('catch binary image')
+        print('catch binary image')
+        return binary_image

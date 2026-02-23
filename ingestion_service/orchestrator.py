@@ -4,6 +4,8 @@ from sender import client
 import os
 from pathlib import Path
 import logging
+import uuid
+
 
 logger = logging.getLogger('Ingestion service')
 logging.basicConfig(level=logging.INFO)
@@ -30,36 +32,46 @@ class IngestionOrchestrator:
     send each one to Kafka via producer, and save binary image in MongoDB.
     """
 
-    def load_images_main_loop(self, folder_path: str):
-        # load the images folder and loop over them, for each image extract text and metadata using tools defined in classes.
+
+    @staticmethod
+    def load_images_main_loop():
         metadata_extractor = MetadataExtractor()
         ocr_engine = OCREngine()
 
-        images_handled_successfully = 0
         images_directory = IngestionConfig.images_folder_path
+        images_handled_successfully = 0
+
         for image in images_directory.rglob("*"):
             if not image.is_file():  # Check if it is a file
                 logger.error(f'{file_path} is not a file')
                 continue
             try:
+                image_id = uuid.uuid4()
                 image_path = str(image)
-                text = ocr_engine.extract_text(image_path)
-                metadata = metadata_extractor.extract_metadata(image_path)
-                message = metadata.items()
-                message['text'] = text
-                published = producer.publish(message=message)
-                throw_exceptions('publish message', published)
-                binary_image = metadata_extractor.get_binary_content(image_path)
-                sent = client.save_binary_image(content=binary_image)
-                throw_exceptions('send content to mongodb service', sent)
 
+                # 1: extract metadata
+                ocr_engine.extract_text(image_path=image_path)
+
+                # 2: extract text
+                metadata = metadata_extractor.extract_metadata(image_path=image_path)
+
+                # 3: send to mongodb
+                # binary_image = metadata_extractor.get_binary_content(image_path)
+                # sent = client.save_binary_image(binary_image, image_id)
+                # throw_exceptions('send content to mongodb service', sent)
+
+                # 4: send to kafka
+                metadata['image_id'] = image_id
+                published = producer.publish(metadata)
+                throw_exceptions('publish message', published)
+
+                images_handled_successfully += 1
             except Exception as e:
                 logger.error(e)
 
         return {
             'images handled successfully': images_handled_successfully
         }
-
 
 main_config = IngestionConfig() #TODO: fill this up
 
