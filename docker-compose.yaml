@@ -2,14 +2,181 @@ version: '3.8'
 
 services:
   kafka:
-  kafka_ui:
+    image: confluentinc/cp-kafka:7.8.3
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z localhost 9092 || exit 1" ]
+      interval: 5s
+      timeout: 15s
+      retries: 10
+      start_period: 20s
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_KRAFT_MODE: 'true'
+      CLUSTER_ID: '1L6g7nGhU-eAKfL--X25wo'
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+
+    volumes:
+      - kafka_kraft:/var/lib/kafka/data
+
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+
+
+
   mongodb:
+    image: docker.io/library/mongo:7.0
+    container_name: pizza_orders_mongo
+    restart: always
+    ports:
+      - '27017:27017'
+
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: 'report_images'
+
+    volumes:
+      - mongo_data:/data/db
+
+
   elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.0
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+
+    environment:
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=elastic_password
+      - discovery.type=single-node
+      - xpack.security.http.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
+
   ingestion:
-  cleaner:
-  analyzer:
+    build:
+      context: ingestion_service
+      dockerfile: Dockerfile
+
+    environment:
+      KAFKA_URL: 'kafka:9092'
+      KAFKA_TOPIC: 'raw'
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+      gridfs:
+        condition: service_healthy
+
   gridfs:
+    build:
+      context: gridfs_service
+      dockerfile: Dockerfile
+
+    environment:
+      MONGODB_COLLECTION: 'report_images'
+      MONGODB_DATABASE: 'report_images'
+      MONGO_URI: 'mongodb://root:password@mongodb:27017/?authSource=admin'
+
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  cleaner:
+    build:
+      context: cleaning
+      dockerfile: Dockerfile
+
+    environment:
+      KAFKA_URL: 'kafka:9092'
+      KAFKA_SUBSCRIBE_TOPIC: 'raw'
+      KAFKA_PRODUCE_TOPIC: 'clean'
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+
+  analyzer:
+    build:
+      context: analytics
+      dockerfile: Dockerfile
+
+    environment:
+      KAFKA_URL: 'kafka:9092'
+      KAFKA_SUBSCRIBE_TOPIC: 'clean'
+      KAFKA_PRODUCE_TOPIC: 'analytic'
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+
   elastic_consumer:
+    build:
+      context: elastic_consumer
+      dockerfile: Dockerfile
+
+    environment:
+      KAFKA_URL: 'kafka:9092'
+      KAFKA_RAW_TOPIC: 'raw'
+      KAFKA_CLEAN_TOPIC: 'clean'
+      KAFKA_ANALYTIC_TOPIC: 'analytic'
+
+      ELASTIC_URL: 'http://elastic:elastic_password@elasticsearch:9200'
+      ELASTIC_INDEX: 'report_images_text'
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+
   dashboard:
+    build:
+      context: dashboard
+      dockerfile: Dockerfile
 
+    environment:
+      ELASTIC_URL: 'http://elastic:elastic_password@elasticsearch:9200'
+      ELASTIC_INDEX: 'report_images_text'
 
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+volumes:
+  kafka_kraft:
+  mongo_data:
+  elasticsearch-data:
