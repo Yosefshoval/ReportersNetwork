@@ -93,9 +93,11 @@ services:
       KAFKA_URL: 'kafka:9092'
       KAFKA_TOPIC: 'raw'
 
+      SERVER_PORT: '8000'
+
       GRIDFS_URL: 'http://gridfs:8001'
 
-      IMAGES_FOLDER_PATH: ''
+      IMAGES_FOLDER_PATH: 'ingestion_data:/data/tweet_images'
 
     volumes:
       - ingestion_data:/images

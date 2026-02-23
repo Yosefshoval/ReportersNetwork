@@ -1,11 +1,24 @@
 from ocr import OCREngine, MetadataExtractor
-from main import logger
 from producer import producer
 from sender import client
 import os
+from pathlib import Path
+import logging
+
+logger = logging.getLogger('Ingestion service')
+logging.basicConfig(level=logging.INFO)
+
 
 class IngestionConfig:
-    IMAGES_FOLDER_PATH = os.getenv('IMAGES_FOLDER_PATH')
+    images_folder_path = Path(os.getenv('IMAGES_FOLDER_PATH'))
+    kafka_url = os.getenv('KAFKA_URL')
+    kafka_topic = os.getenv('KAFKA_TOPIC')
+    server_port = os.getenv('SERVER_PORT')
+
+
+def throw_exceptions(name, operation):
+    if not operation:
+        raise Exception(f'Error when trying do {name} operation.')
 
 
 
@@ -23,15 +36,22 @@ class IngestionOrchestrator:
         ocr_engine = OCREngine()
 
         images_handled_successfully = 0
-        for image in folder_path:
+        images_directory = IngestionConfig.images_folder_path
+        for image in images_directory.rglob("*"):
+            if not image.is_file():  # Check if it is a file
+                logger.error(f'{file_path} is not a file')
+                continue
             try:
-                text = ocr_engine.extract_text(image)
-                metadata = metadata_extractor.extract_metadata(image)
+                image_path = str(image)
+                text = ocr_engine.extract_text(image_path)
+                metadata = metadata_extractor.extract_metadata(image_path)
                 message = metadata.items()
                 message['text'] = text
                 published = producer.publish(message=message)
-                binary_image = metadata_extractor.get_binary_content(image)
+                throw_exceptions('publish message', published)
+                binary_image = metadata_extractor.get_binary_content(image_path)
                 sent = client.save_binary_image(content=binary_image)
+                throw_exceptions('send content to mongodb service', sent)
 
             except Exception as e:
                 logger.error(e)

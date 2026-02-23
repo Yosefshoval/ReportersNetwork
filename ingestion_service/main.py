@@ -1,15 +1,9 @@
 from fastapi import FastAPI
-import logging
-from orchestrator import main_config, orchestrator
+import uvicorn
+from orchestrator import main_config, orchestrator, logger
 from os import getenv
 
-images_folder = getenv('IMAGES_FOLDER_PATH', '../images/tweet_images')
-
-logger = logging.getLogger('Ingestion service')
-logging.basicConfig(level=logging.INFO)
-
 app = FastAPI()
-
 
 @app.get('/')
 def home():
@@ -23,3 +17,13 @@ def home():
 def load_images():
     result = orchestrator.load_images_main_loop()
     return result
+
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app='main:app',
+        host='0.0.0.0',
+        port=int(main_config.server_port)
+    )
+    logger.info('server started')

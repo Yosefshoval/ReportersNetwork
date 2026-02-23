@@ -1,8 +1,6 @@
 import easyocr
 import subprocess
 
-images_folder_path = '../images/tweet_images'
-
 
 class OCREngine:
     """
@@ -40,7 +38,9 @@ class MetadataExtractor:
         for k, v in Dic.items():
             print(k, ':', v)
         return Dic
-
+        # pass
 
     def get_binary_content(self, image):
         pass
+
+MetadataExtractor().extract_metadata('image.png')

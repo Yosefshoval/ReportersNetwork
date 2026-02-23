@@ -1,3 +1,5 @@
+from http.client import responses
+
 import requests
 from os import getenv
 
@@ -11,6 +13,8 @@ class MongoLoaderClient:
         self.url = getenv('GRIDFS_URL')
 
     def save_binary_image(self, content: str | bytes):
-        pass
+        response = requests.post(
+            url=self.url, data=content)
+        return response.json()
 
 client = MongoLoaderClient()
