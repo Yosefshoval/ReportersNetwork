@@ -37,7 +37,8 @@ services:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
     ports:
-      - "8080:8080"
+      - ${KAFKA_UI_PORTS}:8080
+
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
@@ -74,7 +75,7 @@ services:
 
     environment:
       - xpack.security.enabled=true
-      - ELASTIC_PASSWORD=elastic_password
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - discovery.type=single-node
       - xpack.security.http.ssl.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
@@ -92,6 +93,13 @@ services:
       KAFKA_URL: 'kafka:9092'
       KAFKA_TOPIC: 'raw'
 
+      GRIDFS_URL: 'http://gridfs:8001'
+
+      IMAGES_FOLDER_PATH: ''
+
+    volumes:
+      - ingestion_data:/images
+
     depends_on:
       kafka:
         condition: service_healthy
@@ -102,6 +110,9 @@ services:
     build:
       context: gridfs_service
       dockerfile: Dockerfile
+
+    ports:
+      - ${GRIDFS_PORTS}
 
     environment:
       MONGODB_COLLECTION: 'report_images'
@@ -180,3 +191,4 @@ volumes:
   kafka_kraft:
   mongo_data:
   elasticsearch-data:
+  ingestion_data:

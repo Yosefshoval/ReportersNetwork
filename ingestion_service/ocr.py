@@ -39,3 +39,8 @@ class MetadataExtractor:
 
         for k, v in Dic.items():
             print(k, ':', v)
+        return Dic
+
+
+    def get_binary_content(self, image):
+        pass
