@@ -51,9 +51,9 @@ class IngestionOrchestrator:
                 metadata['image_id'] = str(image_id)
 
                 # 3: send to mongodb
-                # binary_image = metadata_extractor.get_binary_content(image_path)
-                # sent = client.save_binary_image(binary_image, image_id)
-                # throw_exceptions('send content to mongodb service', sent)
+                binary_image = metadata_extractor.get_binary_content(image_path)
+                sent = client.save_binary_image(binary_image, image_id, image_path)
+                throw_exceptions('send content to mongodb service', sent)
 
                 # 4: send to kafka
                 full_image_data = metadata | {'text' : text}

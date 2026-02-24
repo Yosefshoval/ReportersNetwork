@@ -12,8 +12,8 @@ class MongoLoaderClient:
     def __init__(self):
         self.url = getenv('GRIDFS_URL')
 
-    def save_binary_image(self, content: str | bytes, image_id):
-        request_json = {'content' : content, 'image_id' : image_id}
+    def save_binary_image(self, content: str | bytes, image_id, image_name: str):
+        request_json = {'content' : content, 'image_id' : image_id, 'image_name' : image_name}
 
         response = requests.post(
             url=self.url,
