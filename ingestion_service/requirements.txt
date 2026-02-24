@@ -1,6 +1,6 @@
 fastapi
 uvicorn
 confluent-kafka
-requests
-easyocr
+pytesseract
+Pillow
 requests

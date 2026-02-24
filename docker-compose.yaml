@@ -87,7 +87,9 @@ services:
   ingestion:
     build:
       context: ingestion_service
-      dockerfile: Dockerfile
+
+    ports:
+      - '8000:8000'
 
     environment:
       KAFKA_URL: 'kafka:9092'
@@ -97,16 +99,16 @@ services:
 
       GRIDFS_URL: 'http://gridfs:8001'
 
-      IMAGES_FOLDER_PATH: 'ingestion_data:/data/tweet_images'
+      IMAGES_FOLDER_PATH: './tweet_images'
 
     volumes:
-      - ingestion_data:/images
+      - ./ingestion_service:/tweet_images
 
     depends_on:
       kafka:
         condition: service_healthy
-      gridfs:
-        condition: service_healthy
+#      gridfs:
+#        condition: service_healthy
 
   gridfs:
     build:
@@ -193,4 +195,4 @@ volumes:
   kafka_kraft:
   mongo_data:
   elasticsearch-data:
-  ingestion_data:
+#  reportersnetwork_ingestion_data:

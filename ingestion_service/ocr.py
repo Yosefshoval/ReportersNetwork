@@ -1,21 +1,20 @@
-import easyocr
+import pytesseract
 import subprocess
 from PIL import Image
 import os
-# from orchestrator import logger
+from config import IngestionConfig
 
 
 class OCREngine:
     """
     principle to extract full text found in the image. return only text field.
     """
-    def __init__(self):
-        self.reader = easyocr.Reader(['en'])
 
-    def extract_text(self, image_path):
-        result = self.reader.readtext(image_path, detail=0, paragraph=True)
-        # logger.info(f'text from image {image_path} extracted.')
-        print(f'text from image {image_path} extracted.')
+    @staticmethod
+    def extract_text(image_path: str):
+        image = Image.open(image_path)
+        result = pytesseract.image_to_string(image, lang='heb+eng')
+        IngestionConfig.logger.info(f'text from image {image_path} extracted.')
         return result
 
 
@@ -39,8 +38,7 @@ class MetadataExtractor:
                 "format": image_format,
                 'file_size': os.path.getsize(image_path)
             }
-            # logger.info(f'metadata from image {image_path} extracted.')
-            print(f'metadata from image {image_path} extracted.')
+            IngestionConfig.logger.info(f'metadata from image {image_path} extracted.')
             return metadata
 
     @staticmethod
@@ -51,6 +49,5 @@ class MetadataExtractor:
         """
         with open(image_path, 'rb') as file:
             binary_image = file.read()
-        # logger.info('catch binary image')
-        print('catch binary image')
+        IngestionConfig.logger.info('catch binary image')
         return binary_image

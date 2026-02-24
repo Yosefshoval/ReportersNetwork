@@ -1,5 +1,5 @@
 from http.client import responses
-
+from config import IngestionConfig
 import requests
 from os import getenv
 

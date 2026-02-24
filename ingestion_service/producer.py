@@ -1,5 +1,5 @@
 from confluent_kafka import Producer
-from orchestrator import main_config
+from config import IngestionConfig
 import json
 
 
@@ -9,16 +9,16 @@ class KafkaPublisher:
     """
     def __init__(self):
         producer_config = {
-            "bootstrap.servers": ''
+            "bootstrap.servers": IngestionConfig.kafka_url
         }
         self.producer = Producer(producer_config)
 
     @staticmethod
     def report_status(err, msg):
         if err:
-            pass
+            IngestionConfig.logger.error(err)
         else:
-            pass
+            IngestionConfig.logger.info(msg)
 
 
     def publish(self, message: dict):
@@ -27,11 +27,13 @@ class KafkaPublisher:
         :return: True if sent successfully, False if not.
         """
         value = json.dumps(message).encode("utf-8")
+        IngestionConfig.logger.info(f'message value: {value}')
         self.producer.produce(
-            topic=main_config.kafka_topic,
+            topic=IngestionConfig.kafka_topic,
             value=value,
             callback=KafkaPublisher.report_status
         )
+        return True
 
 
 producer = KafkaPublisher()
