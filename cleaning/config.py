@@ -1,5 +1,4 @@
 import os
-import logging
 
 class CleanConfig:
     kafka_url = os.getenv('KAFKA_URL')
@@ -14,7 +13,3 @@ class CleanConfig:
     producer_config = {
         "bootstrap.servers": kafka_url
     }
-
-    logger = logging.getLogger('cleaner service')
-    logging.basicConfig(level=logging.INFO)
-

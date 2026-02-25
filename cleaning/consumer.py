@@ -1,16 +1,22 @@
 from confluent_kafka import Consumer
 from config import CleanConfig
-
-logger = CleanConfig.logger
+import json
+from logging import Logger
 
 
 class KafkaConsumer:
-    def __init__(self):
+    def __init__(self, logger: Logger):
+        self.logger = logger
         self.consumer = Consumer(CleanConfig.consumer_config)
-        logger.info('consumer created')
         self.consumer.subscribe([CleanConfig.kafka_subscribe_topic])
+        self.logger.info(f'consumer created and subscribe to topic {CleanConfig.kafka_subscribe_topic}')
 
     def get_images_data(self):
-        while True:
-            image = self.consumer.poll(1.0)
+        image = self.consumer.poll(1.0)
+        if image.error():
+            self.logger.error(image.error())
+        if image is None:
+            return None
+        return json.loads(image.value().decode('utf-8'))
+
 

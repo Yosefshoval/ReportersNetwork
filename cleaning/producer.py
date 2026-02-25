@@ -1,12 +1,15 @@
+from logging import Logger
 from confluent_kafka import Producer
 from config import CleanConfig
 import json
 
-logger = CleanConfig.logger
 
 class KafkaPublisher:
-    def __init__(self):
+    def __init__(self, logger: Logger):
+        self.logger = logger
         self.producer = Producer(CleanConfig.producer_config)
+        self.logger.info('producer created')
+
 
     def publish_cleaned_text(self, message: dict):
 
@@ -16,4 +19,4 @@ class KafkaPublisher:
         )
 
         self.producer.flush()
-        logger.info(f'message {message} published to kafka on topic {CleanConfig.kafka_produce_topic}')
+        self.logger.info(f'message {message} published to kafka on topic {CleanConfig.kafka_produce_topic}')
