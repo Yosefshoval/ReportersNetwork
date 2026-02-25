@@ -3,10 +3,12 @@ from config import Config
 from schema import Request
 from mongodb import MongoOperations
 
-logger = Config.logger
+logger = logging.getLogger('gridfs service')
+logging.basicConfig(level=logging.INFO)
 
-client = MongoOperations()
-logger.info(f'mongodb connected. {client.client.is_mongos}')
+
+client = MongoOperations(logger)
+logger.info(f'mongodb connected: {client.client.is_mongos}')
 
 app = FastAPI()
 logger.info('server created')
