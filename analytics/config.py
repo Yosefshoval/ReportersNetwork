@@ -1,0 +1,2 @@
+class AnalyticsConfig:
+    pass
