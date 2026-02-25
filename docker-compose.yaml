@@ -47,7 +47,7 @@ services:
 
   mongodb:
     image: docker.io/library/mongo:7.0
-    container_name: pizza_orders_mongo
+    container_name: mongodb
     restart: always
     ports:
       - '27017:27017'
@@ -97,7 +97,7 @@ services:
 
       SERVER_PORT: '8000'
 
-      GRIDFS_URL: 'http://gridfs:8001'
+      GRIDFS_URL: 'http://gridfs:8001/insert_image'
 
       IMAGES_FOLDER_PATH: './tweet_images'
 
@@ -107,8 +107,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
-#      gridfs:
-#        condition: service_healthy
+      gridfs:
+        condition: service_healthy
 
   gridfs:
     build:
@@ -116,7 +116,14 @@ services:
       dockerfile: Dockerfile
 
     ports:
-      - ${GRIDFS_PORTS}
+      - ${GRIDFS_PORT}:${GRIDFS_PORT}
+
+    healthcheck:
+      test: curl --fail http://localhost:8001/health || exit 1
+      interval: 2s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
     environment:
       MONGODB_COLLECTION: 'report_images'
@@ -195,4 +202,3 @@ volumes:
   kafka_kraft:
   mongo_data:
   elasticsearch-data:
-#  reportersnetwork_ingestion_data:

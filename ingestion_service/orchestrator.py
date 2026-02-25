@@ -39,7 +39,7 @@ class IngestionOrchestrator:
                 IngestionConfig.logger.error(f'{image} is not a file')
                 continue
             try:
-                image_id = uuid.uuid4()
+                image_id = str(uuid.uuid4())
                 IngestionConfig.logger.info('uuid created.')
                 image_path = str(image)
 
@@ -48,7 +48,7 @@ class IngestionOrchestrator:
 
                 # 2: extract metadata
                 metadata = metadata_extractor.extract_metadata(image_path=image_path)
-                metadata['image_id'] = str(image_id)
+                metadata['image_id'] = image_id
 
                 # 3: send to mongodb
                 binary_image = metadata_extractor.get_binary_content(image_path)
