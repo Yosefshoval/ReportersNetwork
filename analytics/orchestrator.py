@@ -5,6 +5,5 @@ class AnalyticsOrchestrator:
         self.logger = logger
 
 
-
     def handle_event(self, event):
         pass
