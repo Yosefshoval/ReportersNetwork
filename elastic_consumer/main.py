@@ -2,7 +2,7 @@ from orchestrator import IndexOrchestrator
 import logging
 
 
-logger = logging.getLogger('gridfs service')
+logger = logging.getLogger(' elastic consumer service ')
 logging.basicConfig(level=logging.INFO)
 
 
