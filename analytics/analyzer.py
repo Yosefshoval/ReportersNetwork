@@ -17,7 +17,7 @@ class TextAnalyzer:
     def top_ten_words(self, text: str):
 
         split_it = text.split()
-        counters_found = Counter(split_it)
+        counters_found = Counter(word for word in split_it if not word.isdigit())
         most_occur = counters_found.most_common(10)
         self.logger.info('text analyzed')
         return most_occur
