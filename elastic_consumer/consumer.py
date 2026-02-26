@@ -14,8 +14,12 @@ class KafkaConsumer:
 
     def get_images_data(self):
         image = self.consumer.poll(1.0)
+
         if image is None:
             return None
         if image.error():
             self.logger.error(image.error())
-        return json.loads(image.value().decode('utf-8'))
+
+        image_value = json.loads(image.value().decode('utf-8'))
+        self.logger.info(f'image data received from topic: {image.topic()}')
+        return image_value

@@ -1,5 +1,6 @@
 from elasticsearch import Elasticsearch
 from config import IndexerConfig
+from logging import Logger
 
 class ElasticsearchClient:
     def __init__(self, logger: Logger):
