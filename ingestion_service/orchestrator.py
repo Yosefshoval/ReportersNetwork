@@ -11,6 +11,7 @@ import os
 
 def throw_exceptions(name, operation):
     if not operation:
+        IngestionConfig.logger.error(f'operation: {operation}')
         raise Exception(f'Error when trying do {name} operation.')
 
 
@@ -33,6 +34,7 @@ class IngestionOrchestrator:
 
         IngestionConfig.logger.info('loop starting....')
         IngestionConfig.logger.info(f' images_directory.exists(): {images_directory.exists()}')
+
         for image in images_directory.rglob("**/*"):
             IngestionConfig.logger.info(f'current image: {image}')
             if not image.is_file():  # Check if it is a file

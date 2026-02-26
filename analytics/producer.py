@@ -1,3 +1,8 @@
+from logging import Logger
+
+
 class KafkaPublisher:
-    pass
+    def __init__(self, logger: Logger):
+        self.logger = logger
+
 

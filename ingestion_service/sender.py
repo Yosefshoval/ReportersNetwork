@@ -12,13 +12,17 @@ class MongoLoaderClient:
     def __init__(self):
         self.url = getenv('GRIDFS_URL')
 
-    def save_binary_image(self, content: bytes, image_id, image_name: str):
-        request_json = {'content' : content.decode('utf-8', errors='replace'), 'image_id' : image_id, 'image_name' : image_name}
+    def save_binary_image(self, file: bytes, image_id: str, image_name: str):
+        files = {'file' : (image_name, file, 'image/png')}
+        payload = {'image_id': image_id}
 
         response = requests.post(
             url=self.url,
-            json=request_json
+            files=files,
+            data=payload
         )
-        return response.json()
+        IngestionConfig.logger.info(f'image with id {image_id} sent to mongodb server')
+        IngestionConfig.logger.info(f'response: {response}')
+        return response
 
 client = MongoLoaderClient()
