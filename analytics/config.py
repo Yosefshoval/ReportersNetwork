@@ -7,7 +7,7 @@ class AnalyticsConfig:
 
     consumer_config = {
         "bootstrap.servers": kafka_url,
-        "group.id": "cleaning_team",
+        "group.id": "analytics_team",
         "auto.offset.reset": "earliest"
     }
     producer_config = {

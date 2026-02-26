@@ -29,6 +29,10 @@ class TextAnalyzer:
             if word in self.weapons_list:
                 weapons.add(word)
 
+        self.logger.info(f'found {len(weapons)} weapons in the text')
+        return list(weapons)
+
+
     def sentiment_analytics(self, text: str):
         score = SentimentIntensityAnalyzer().polarity_scores(text)
         compound = score['compound']
@@ -44,6 +48,3 @@ class TextAnalyzer:
         self.logger.info(f'text score analyzed. score: {compound}.')
 
         return state
-
-
-
