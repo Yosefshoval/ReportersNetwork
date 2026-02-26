@@ -12,9 +12,6 @@ class AnalyticsOrchestrator:
         self.analyzer = TextAnalyzer(logger)
 
 
-    def handle_event(self, event):
-        pass
-
     def run(self):
         self.logger.info('loop starting')
         while True:

@@ -6,4 +6,5 @@ logger = logging.getLogger('analytics service')
 
 if __name__ == "__main__":
     orchestrator = AnalyticsOrchestrator(logger)
+    logger.info('service starting...')
     orchestrator.run()
