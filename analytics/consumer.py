@@ -1,6 +1,7 @@
 from logging import Logger
 from confluent_kafka import Consumer
 from config import AnalyticsConfig
+import json
 
 class KafkaConsumer:
     def __init__(self, logger: Logger):
