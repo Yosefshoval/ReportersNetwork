@@ -164,39 +164,39 @@ services:
         condition: service_healthy
 
 
-  elastic_consumer:
-    build:
-      context: elastic_consumer
-      dockerfile: Dockerfile
-
-    environment:
-      KAFKA_URL: 'kafka:9092'
-      KAFKA_RAW_TOPIC: 'raw'
-      KAFKA_CLEAN_TOPIC: 'clean'
-      KAFKA_ANALYTIC_TOPIC: 'analytic'
-
-      ELASTIC_URL: 'http://elastic:elastic_password@elasticsearch:9200'
-      ELASTIC_INDEX: 'report_images_text'
-
-    depends_on:
-      kafka:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-
-
-  dashboard:
-    build:
-      context: dashboard
-      dockerfile: Dockerfile
-
-    environment:
-      ELASTIC_URL: 'http://elastic:elastic_password@elasticsearch:9200'
-      ELASTIC_INDEX: 'report_images_text'
-
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
+#  elastic_consumer:
+#    build:
+#      context: elastic_consumer
+#      dockerfile: Dockerfile
+#
+#    environment:
+#      KAFKA_URL: 'kafka:9092'
+#      KAFKA_RAW_TOPIC: 'raw'
+#      KAFKA_CLEAN_TOPIC: 'clean'
+#      KAFKA_ANALYTIC_TOPIC: 'analytic'
+#
+#      ELASTIC_URL: 'http://elastic:elastic_password@elasticsearch:9200'
+#      ELASTIC_INDEX: 'report_images_text'
+#
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#      elasticsearch:
+#        condition: service_healthy
+#
+#
+#  dashboard:
+#    build:
+#      context: dashboard
+#      dockerfile: Dockerfile
+#
+#    environment:
+#      ELASTIC_URL: 'http://elastic:elastic_password@elasticsearch:9200'
+#      ELASTIC_INDEX: 'report_images_text'
+#
+#    depends_on:
+#      elasticsearch:
+#        condition: service_healthy
 
 volumes:
   kafka_kraft:

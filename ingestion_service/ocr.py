@@ -1,5 +1,4 @@
 import pytesseract
-import subprocess
 from PIL import Image
 import os
 from config import IngestionConfig

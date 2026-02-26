@@ -11,7 +11,7 @@ class TextCleaner:
         self.logger = logger
 
     def clean_text(self, text: str):
-        text.replace('\n', ' ')
+        text = text.replace('\n', ' ')
         cleaned_string = ''.join(c for c in text.lower() if c.islower() or c == ' ' or c.isdigit())
         words = cleaned_string.split()
         cleaned_words = [w for w in words if w not in stop_words]

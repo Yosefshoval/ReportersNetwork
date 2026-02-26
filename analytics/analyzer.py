@@ -11,7 +11,7 @@ class TextAnalyzer:
     def __init__(self, logger: Logger):
         self.logger = logger
         with open(AnalyticsConfig.weapons_file_path, 'r') as weapon_list:
-            self.weapons_list = weapon_list.read().split()
+            self.weapons_list = weapon_list.read().strip().split()
 
 
     def top_ten_words(self, text: str):
@@ -22,11 +22,12 @@ class TextAnalyzer:
         self.logger.info('text analyzed')
         return most_occur
 
+
     def find_weapons(self, text: str):
         weapons = set()
 
-        for word in text:
-            if word in self.weapons_list:
+        for word in self.weapons_list:
+            if word.lower() in text:
                 weapons.add(word)
 
         self.logger.info(f'found {len(weapons)} weapons in the text')
