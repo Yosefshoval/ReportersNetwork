@@ -13,10 +13,10 @@ class KafkaConsumer:
 
     def get_images_data(self):
         image = self.consumer.poll(1.0)
-        if image.error():
-            self.logger.error(image.error())
         if image is None:
             return None
+        if image.error():
+            self.logger.error(image.error())
         return json.loads(image.value().decode('utf-8'))
 
 

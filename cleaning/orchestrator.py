@@ -17,7 +17,7 @@ class CleanOrchestrator:
                 if message is None:
                     continue
 
-                self.logger.info(f'image data received from kafka. image id: {message['image_id']}')
+                self.logger.info(f'image data received from kafka. image id: {message["image_id"]}')
 
                 # clean text
                 text = message.get('text')
